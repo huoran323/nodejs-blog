@@ -2,6 +2,7 @@ const express = require("express");
 // 全局路径的库
 const path = require("path");
 const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
 
 // 连接数据库
 mongoose.connect("mongodb://localhost/nodejs-blog");
@@ -17,6 +18,8 @@ db.on("error", err => {
 });
 
 const app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // 导入article
 let Article = require("./models/article");
@@ -65,6 +68,27 @@ app.get("/", (req, res) => {
 app.get("/articles/new", (req, res) => {
   res.render("new", {
     title: "Add Article"
+  });
+});
+
+app.post("/articles/create", (req, res) => {
+  // 利用model新建对象
+  let article = new Article();
+
+  // 获取输入的值
+  article.title = req.body.title;
+  article.author = req.body.author;
+  article.body = req.body.body;
+
+  // 保存到数据库
+  article.save(err => {
+    if (err) {
+      console.log(err);
+      return;
+    } else {
+      // 跳转到首页
+      res.redirect("/");
+    }
   });
 });
 
