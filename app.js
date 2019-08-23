@@ -21,6 +21,9 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// 引入public
+app.use(express.static(path.join(__dirname, "public")));
+
 // 导入article
 let Article = require("./models/article");
 
