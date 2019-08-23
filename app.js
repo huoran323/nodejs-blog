@@ -84,6 +84,18 @@ app.get("/articles/:id", (req, res) => {
   });
 });
 
+// 编辑文章
+app.get("/articles/:id/edit", (req, res) => {
+  // req.params.id 获取上面地址中的id
+  Article.findById(req.params.id, (err, article) => {
+    res.render("edit", {
+      title: "Edit Article",
+      article: article
+    });
+  });
+});
+
+// 创建文章
 app.post("/articles/create", (req, res) => {
   // 利用model新建对象
   let article = new Article();
@@ -95,6 +107,22 @@ app.post("/articles/create", (req, res) => {
 
   // 保存到数据库
   article.save(err => {
+    if (err) {
+      console.log(err);
+      return;
+    } else {
+      // 跳转到首页
+      res.redirect("/");
+    }
+  });
+});
+
+// 更新文章
+app.post("/articles/update/:id", (req, res) => {
+  let query = { _id: req.params.id };
+
+  // 更新，第一个参数传id进行查询，第二个参数传更新的内容
+  Article.update(query, req.body, err => {
     if (err) {
       console.log(err);
       return;
