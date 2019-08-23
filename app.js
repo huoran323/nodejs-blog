@@ -3,6 +3,8 @@ const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+// 引入express-session
+const session = require("express-session");
 
 // 连接数据库
 mongoose.connect("mongodb://localhost/nodejs-blog");
@@ -18,6 +20,21 @@ db.on("error", err => {
 });
 
 const app = express();
+
+app.use(
+  session({
+    secret: "keyboard cat", //秘钥
+    resave: false,
+    saveUninitialized: true
+  })
+);
+
+// falsh中间件，用来显示一些成功等的提示
+app.use(require("connect-flash")());
+app.use(function(req, res, next) {
+  res.locals.messages = require("express-messages")(req, res);
+  next();
+});
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -111,6 +128,8 @@ app.post("/articles/create", (req, res) => {
       console.log(err);
       return;
     } else {
+      // 显示创建成功的弹框提示
+      req.flash("success", "Article Added");
       // 跳转到首页
       res.redirect("/");
     }
@@ -127,6 +146,7 @@ app.post("/articles/update/:id", (req, res) => {
       console.log(err);
       return;
     } else {
+      req.flash("success", "Article Updated");
       // 跳转到首页
       res.redirect("/");
     }

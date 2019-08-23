@@ -5,7 +5,7 @@ html(lang="en")
     link(rel="stylesheet",href="/bower_components/bootstrap/dist/css/bootstrap.css")
     link(rel="stylesheet",href="/css/style.css")
   body
-    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark.mb-2
       .container
         a.navbar-brand(href='#') Knowledgebase
           |   
@@ -22,6 +22,7 @@ html(lang="en")
               li.nav-item
                 a.nav-link(href='/articles/new') Add Article
     .container
+      != messages('message', locals)
       block content
       br
       hr
