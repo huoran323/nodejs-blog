@@ -74,6 +74,16 @@ app.get("/articles/new", (req, res) => {
   });
 });
 
+// 获取文章
+app.get("/articles/:id", (req, res) => {
+  // req.params.id 获取上面地址中的id
+  Article.findById(req.params.id, (err, article) => {
+    res.render("show", {
+      article: article
+    });
+  });
+});
+
 app.post("/articles/create", (req, res) => {
   // 利用model新建对象
   let article = new Article();
