@@ -133,6 +133,18 @@ app.post("/articles/update/:id", (req, res) => {
   });
 });
 
+// 删除文章
+app.delete("/articles/:id", (req, res) => {
+  let query = { _id: req.params.id };
+
+  Article.remove(query, err => {
+    if (err) {
+      console.log(err);
+    }
+    res.send("Success");
+  });
+});
+
 app.listen(3000, () => {
   console.log("Server started");
 });
