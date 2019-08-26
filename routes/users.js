@@ -1,9 +1,63 @@
 const express = require("express");
 
 let router = express.Router();
+// 导入article
+let User = require("../models/user");
+// 表单验证库
+const { check, validationResult } = require("express-validator");
 
 router.get("/register", function(req, res) {
   res.render("users/register");
 });
+
+router.post(
+  "/register",
+  [
+    check("name")
+      .isLength({ min: 1 })
+      .withMessage("Name is required"),
+    check("email")
+      .isEmail()
+      .withMessage("Invalid Email"),
+    check("username")
+      .isLength({ min: 1 })
+      .withMessage("Username is required"),
+    check("password", "invalid password")
+      .isLength({ min: 1 })
+      .custom((value, { req, loc, path }) => {
+        // 验证密码与确认密码是否相同
+        if (value !== req.body.password_confirmation) {
+          throw new Error("Password donot match");
+        } else {
+          return value;
+        }
+      })
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      res.render("users/register", {
+        errors: errors.array()
+      });
+    } else {
+      // 利用model新建对象
+      let user = new User(req.body);
+
+      // 保存到数据库
+      user.save(err => {
+        if (err) {
+          console.log(err);
+          return;
+        } else {
+          // 显示创建成功的弹框提示
+          req.flash("success", "User Added");
+          // 跳转到首页
+          res.redirect("/");
+        }
+      });
+    }
+  }
+);
 
 module.exports = router;
