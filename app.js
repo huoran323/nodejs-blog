@@ -52,8 +52,12 @@ app.set("view engine", "pug");
 
 // 使用路由中间件引入routes的articles
 let articles = require("./routes/articles");
+let users = require("./routes/users");
+
 // "/articles"即路由前缀，里面的路径可以不用写"/articles"，会自动与后面的地址拼接
 app.use("/articles", articles);
+app.use("/users", users);
+
 // 根目录
 app.get("/", (req, res) => {
   // Article.find会寻找数据库中Article的小写形式的复数数据库，即去寻找articles数据库；这是mongoose规定的
