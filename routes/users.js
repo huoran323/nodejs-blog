@@ -2,6 +2,8 @@ const express = require("express");
 // 引入加密密码的库
 const bcrypt = require("bcrypt");
 
+const passport = require("passport");
+
 let router = express.Router();
 // 导入article
 let User = require("../models/user");
@@ -65,8 +67,8 @@ router.post(
             } else {
               // 显示创建成功的弹框提示
               req.flash("success", "You are now registered and log in");
-              // 跳转到首页
-              res.redirect("/");
+              // 跳转到登录页
+              res.redirect("/users/login");
             }
           });
         });
@@ -74,5 +76,24 @@ router.post(
     }
   }
 );
+
+router.get("/login", function(req, res) {
+  res.render("users/login");
+});
+
+router.post("/login", function(req, res, next) {
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/users/login",
+    failureFlash: true,
+    successFlase: "Welcome"
+  })(req, res, next);
+});
+
+router.get("/logout", function(req, res) {
+  req.logout();
+  req.flash("success", "You are logged out");
+  res.redirect("/users/login");
+});
 
 module.exports = router;

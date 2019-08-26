@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 // 表单验证库
 const { check, validationResult } = require("express-validator");
+const passport = require("passport");
 
 // 连接数据库
 mongoose.connect("mongodb://localhost/nodejs-blog");
@@ -42,6 +43,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // 引入public
 app.use(express.static(path.join(__dirname, "public")));
+
+// passport本地策略
+require("./config/passport")(passport); //调用passport这个函数，传入passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// 每次请求都要先走这个请求
+app.get("*", function(req, res, next) {
+  // express提供的定义方法,把user存储到res.locals，其他地方可以直接使用user,这里用来判断用户是否登录了
+  res.locals.user = req.user || null;
+  next();
+});
 
 // 导入article
 let Article = require("./models/article");
