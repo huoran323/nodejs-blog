@@ -1,4 +1,6 @@
 const express = require("express");
+// 引入加密密码的库
+const bcrypt = require("bcrypt");
 
 let router = express.Router();
 // 导入article
@@ -44,17 +46,30 @@ router.post(
       // 利用model新建对象
       let user = new User(req.body);
 
-      // 保存到数据库
-      user.save(err => {
-        if (err) {
-          console.log(err);
-          return;
-        } else {
-          // 显示创建成功的弹框提示
-          req.flash("success", "User Added");
-          // 跳转到首页
-          res.redirect("/");
-        }
+      // 加密密码
+      bcrypt.genSalt(10, function(err, salt) {
+        bcrypt.hash(user.password, salt, function(err, hash) {
+          // Store hash in your password DB.
+          if (err) {
+            console.log(err);
+            return;
+          }
+
+          user.password = hash;
+
+          // 保存到数据库
+          user.save(err => {
+            if (err) {
+              console.log(err);
+              return;
+            } else {
+              // 显示创建成功的弹框提示
+              req.flash("success", "You are now registered and log in");
+              // 跳转到首页
+              res.redirect("/");
+            }
+          });
+        });
       });
     }
   }
