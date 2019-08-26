@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 // 引入express-session
 const session = require("express-session");
+// 表单验证库
+const { check, validationResult } = require("express-validator");
 
 // 连接数据库
 mongoose.connect("mongodb://localhost/nodejs-blog");
@@ -112,29 +114,52 @@ app.get("/articles/:id/edit", (req, res) => {
   });
 });
 
-// 创建文章
-app.post("/articles/create", (req, res) => {
-  // 利用model新建对象
-  let article = new Article();
+// 创建文章 第二个数组参数为express-validator的表单验证
+app.post(
+  "/articles/create",
+  [
+    check("title")
+      .isLength({ min: 1 })
+      .withMessage("Title is required"),
+    check("body")
+      .isLength({ min: 1 })
+      .withMessage("Body is required"),
+    check("author")
+      .isLength({ min: 1 })
+      .withMessage("Author is required")
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
 
-  // 获取输入的值
-  article.title = req.body.title;
-  article.author = req.body.author;
-  article.body = req.body.body;
-
-  // 保存到数据库
-  article.save(err => {
-    if (err) {
-      console.log(err);
-      return;
+    if (!errors.isEmpty()) {
+      res.render("new", {
+        title: "Add Article",
+        errors: errors.array()
+      });
     } else {
-      // 显示创建成功的弹框提示
-      req.flash("success", "Article Added");
-      // 跳转到首页
-      res.redirect("/");
+      // 利用model新建对象
+      let article = new Article();
+
+      // 获取输入的值
+      article.title = req.body.title;
+      article.author = req.body.author;
+      article.body = req.body.body;
+
+      // 保存到数据库
+      article.save(err => {
+        if (err) {
+          console.log(err);
+          return;
+        } else {
+          // 显示创建成功的弹框提示
+          req.flash("success", "Article Added");
+          // 跳转到首页
+          res.redirect("/");
+        }
+      });
     }
-  });
-});
+  }
+);
 
 // 更新文章
 app.post("/articles/update/:id", (req, res) => {
